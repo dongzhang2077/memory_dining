@@ -70,21 +70,21 @@ Dig downward through limited grid-based levels to collect treasures from the pas
 
 1. **Scanning (扫描)**:
    - Cost: 10 Energy per scan  
-     消耗：每次扫描10能量
+	 消耗：每次扫描10能量
    - Effect: Reveals contents of a 2x2 grid area (shows treasure locations, block types)  
-     效果：揭示2x2网格区域的内容（显示宝藏位置）
+	 效果：揭示2x2网格区域的内容（显示宝藏位置）
    - Strategic use: Plan optimal path before committing to digging  
-     策略用途：在开始挖掘前规划最优路线
+	 策略用途：在开始挖掘前规划最优路线
 
 2. **Bombs (炸弹)**:
    - Cost: 15 Energy per bomb  
-     消耗：每枚炸弹15能量
+	 消耗：每枚炸弹15能量
    - Effect: Destroys 3x3 area of blocks instantly (except unbreakable rocks)  
-     效果：瞬间摧毁3x3区域的方块（坚固岩石除外）
+	 效果：瞬间摧毁3x3区域的方块（坚固岩石除外）
    - **Risk**: Can destroy treasure blocks if caught in blast radius  
-     **风险**：如果在爆炸范围内会摧毁宝藏方块
+	 **风险**：如果在爆炸范围内会摧毁宝藏方块
    - **Risk**: Treasures fall if support blocks beneath them are destroyed - broken treasures are worthless  
-     **风险**：如果宝藏下方的支撑方块被摧毁，宝藏会掉落 - 破损的宝藏毫无价值
+	 **风险**：如果宝藏下方的支撑方块被摧毁，宝藏会掉落 - 破损的宝藏毫无价值
 
 Pickaxe Durability (镐耐久度):
 
@@ -141,33 +141,33 @@ Each level gives limited pickaxe hits (e.g., 30 hits for early levels)
 
 1. **Observation Phase (观察阶段)**:
    - Enter level with limited information
-     进入关卡，信息有限
+	 进入关卡，信息有限
 
 1. **Resource Gathering (资源收集)**:
    - Mine soft dirt and energy crystals to build energy reserves  
-     挖掘软土和能量晶体以积累能量储备
+	 挖掘软土和能量晶体以积累能量储备
    - Balance between progressing toward treasures vs. gathering resources  
-     在朝宝藏前进与收集资源之间平衡
+	 在朝宝藏前进与收集资源之间平衡
 
 1. **Strategic Decisions (策略决策)**:
    - Use energy for scanning (reveal safe paths) or bombs (fast clearing but risky)  
-     用能量扫描（揭示安全路径）还是炸弹（快速清理但有风险）
+	 用能量扫描（揭示安全路径）还是炸弹（快速清理但有风险）
    - Plan digging path to avoid falls, traps, and dead ends  
-     规划挖掘路径以避免掉落、陷阱和死路
+	 规划挖掘路径以避免掉落、陷阱和死路
 
 1. **Treasure Collection (宝藏收集)**:
    - Carefully extract treasures without letting them fall  
-     小心提取宝藏，不让它们掉落
+	 小心提取宝藏，不让它们掉落
    - Reach level exit with treasures intact  
-     带着完好的宝藏到达关卡出口
+	 带着完好的宝藏到达关卡出口
 
 1. **Completion & Progression (完成与进程)**:
    - Treasures added to collection catalog  
-     宝藏添加到收藏图鉴
+	 宝藏添加到收藏图鉴
    - Earn coins to upgrade pickaxe durability, max HP, starting energy  
-     赚取金币以升级镐耐久度、最大生命值、初始能量
+	 赚取金币以升级镐耐久度、最大生命值、初始能量
    - Unlock deeper levels (older eras)  
-     解锁更深的关卡（更古老的年代）
+	 解锁更深的关卡（更古老的年代）
 
 ---
 
