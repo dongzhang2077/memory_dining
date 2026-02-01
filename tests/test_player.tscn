@@ -16,8 +16,8 @@ height = 28.0
 script = ExtResource("1_test_player")
 
 [node name="Background" type="Sprite2D" parent="."]
+position = Vector2(192, 320)
 z_index = -10
-centered = false
 texture = ExtResource("8_level_bg")
 
 [node name="Player" type="CharacterBody2D" parent="." unique_id=1822539561]
