@@ -1,0 +1,117 @@
+[gd_scene format=3 uid="uid://d16o87ewbt8rn"]
+
+[ext_resource type="Script" uid="uid://dio1nwwp0cyg1" path="res://main_menu/main_menu.gd" id="1_eiy7p"]
+[ext_resource type="Texture2D" uid="uid://3y2mrwwsdmhq" path="res://main_menu/menu_bg.png" id="1_i26rj"]
+[ext_resource type="FontFile" uid="uid://bjhu052600snj" path="res://main_menu/PressStart2P-Regular.ttf" id="3_h7a2f"]
+[ext_resource type="Script" uid="uid://dbh8oipj4p8lr" path="res://main_menu/floating_element.gd" id="4_7r1g0"]
+[ext_resource type="Script" uid="uid://sgqat70o7ltv" path="res://main_menu/floating_text.gd" id="4_qoqlk"]
+[ext_resource type="Script" uid="uid://bd65oc3ggc82n" path="res://main_menu/FloatingTitle.gd" id="5_iwfq2"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_h7a2f"]
+line_spacing = -10.0
+font = ExtResource("3_h7a2f")
+outline_size = 5
+outline_color = Color(0.101960786, 0.10980392, 0.17254902, 1)
+shadow_size = 0
+
+[sub_resource type="LabelSettings" id="LabelSettings_7r1g0"]
+font = ExtResource("3_h7a2f")
+font_size = 32
+
+[node name="MainMenu" type="Control" unique_id=567026007]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_eiy7p")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1992497246]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_i26rj")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1077568000]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -250.0
+offset_right = 150.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="MenuContainer" type="VBoxContainer" parent="MarginContainer" unique_id=340348489]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="StartButton" type="Button" parent="MarginContainer/MenuContainer" unique_id=1329597503]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.875, 0.875, 0.875, 1)
+theme_override_colors/font_pressed_color = Color(0.3019608, 0.93333334, 0.91764706, 1)
+theme_override_colors/font_hover_color = Color(1, 0.7647059, 0, 1)
+theme_override_fonts/font = ExtResource("3_h7a2f")
+theme_override_font_sizes/font_size = 25
+text = "START DIGGING"
+flat = true
+script = ExtResource("4_7r1g0")
+
+[node name="QuitButton" type="Button" parent="MarginContainer/MenuContainer" unique_id=1496039259]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.875, 0.875, 0.875, 1)
+theme_override_colors/font_pressed_color = Color(0.3019608, 0.93333334, 0.91764706, 1)
+theme_override_colors/font_hover_color = Color(1, 0.7647059, 0, 1)
+theme_override_fonts/font = ExtResource("3_h7a2f")
+theme_override_font_sizes/font_size = 25
+text = "QUIT"
+flat = true
+
+[node name="Label" type="Label" parent="." unique_id=1572694506]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -56.0
+offset_top = -28.0
+offset_right = 56.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("3_h7a2f")
+theme_override_font_sizes/font_size = 64
+text = "MEMORY 
+
+MINE"
+label_settings = SubResource("LabelSettings_h7a2f")
+horizontal_alignment = 1
+script = ExtResource("4_qoqlk")
+
+[node name="GameTitle" type="Label" parent="." unique_id=1094834972]
+layout_mode = 0
+offset_left = 1262.0
+offset_top = 357.0
+offset_right = 1614.0
+offset_bottom = 424.0
+scale = Vector2(1.5, 1.5)
+pivot_offset = Vector2(176, 25)
+text = "MEMORY 
+MINE"
+label_settings = SubResource("LabelSettings_7r1g0")
+script = ExtResource("5_iwfq2")
