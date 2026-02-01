@@ -10,9 +10,9 @@ extends Control
 @export var grid_system_path: NodePath
 
 ## UI Configuration - Separate size control for each icon type
-@export var heart_icon_size: float = 40.0  # Heart icon size
-@export var energy_icon_size: float = 225.0  # Energy icon size
-@export var treasure_icon_size: float = 40.0  # Treasure slot icon size
+@export var heart_icon_size: float = 100.0  # Heart icon size
+@export var energy_icon_size: float = 300.0  # Energy icon size
+@export var treasure_icon_size: float = 100.0  # Treasure slot icon size
 @export var heart_spacing: float = 1.0  # Spacing between hearts
 @export var treasure_spacing: float = 1.0  # Spacing between treasure slots
 @export var margin: float = 3.0  # Screen margin

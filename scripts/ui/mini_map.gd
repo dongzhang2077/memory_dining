@@ -11,15 +11,15 @@ extends Control
 @export var player_path: NodePath
 
 ## Size configuration
-@export var map_width: int = 72
-@export var map_height: int = 120
+@export var map_width: int = 360   # 5x original size (72 * 5)
+@export var map_height: int = 600  # 5x original size (120 * 5)
 @export var border_width: int = 2
 @export var border_color: Color = Color(0.4, 0.4, 0.4, 0.8)
 @export var background_color: Color = Color(0.1, 0.1, 0.1, 0.7)
 
 ## Player marker configuration
 @export var player_marker_color: Color = Color(1.0, 1.0, 1.0, 1.0)
-@export var player_marker_size: float = 4.0
+@export var player_marker_size: float = 20.0  # 5x original size (4 * 5)
 
 ## References
 var grid_system: GridSystem
