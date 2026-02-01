@@ -1,0 +1,35 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Memory_Mining"
+run/main_scene="uid://5lwvecwkdj6l"
+config/features=PackedStringArray("4.6", "Forward Plus")
+config/icon="res://icon.svg"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/ai_assistant_hub/plugin.cfg")
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[plugins]
+
+ai_assistant_hub/llm_api="gemini_api"
+ai_assistant_hub/preferences/thinking_target=0
+ai_assistant_hub/preferences/skip_greeting=false
+ai_assistant_hub/preferences/always_scroll_to_bottom=false
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"

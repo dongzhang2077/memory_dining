@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AIAssistantResource" format=3 uid="uid://cj4ceoxquvscd"]
+
+[ext_resource type="Resource" uid="uid://b0fti7g31ugs1" path="res://addons/ai_assistant_hub/llm_providers/gemini.tres" id="1_a52p4"]
+[ext_resource type="Script" uid="uid://dyev5uyn4g17w" path="res://addons/ai_assistant_hub/quick_prompts/ai_quick_prompt_resource.gd" id="2_swaq2"]
+[ext_resource type="Script" uid="uid://h7j6cpodva7g" path="res://addons/ai_assistant_hub/assistants/ai_assistant_resource.gd" id="3_7rgln"]
+
+[resource]
+script = ExtResource("3_7rgln")
+type_name = "AI assistant"
+ai_model = "models/imagen-4.0-fast-generate-001"
+llm_provider = ExtResource("1_a52p4")

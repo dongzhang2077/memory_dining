@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://bka7oltlivrkv"]
+
+[ext_resource type="Script" uid="uid://dafyac23xtmxx" path="res://tests/test_grid_system.gd" id="1_test_grid"]
+
+[node name="TestGridSystem" type="Node" unique_id=1318156769]
+script = ExtResource("1_test_grid")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1624431978]
+position = Vector2(200, 300)
+zoom = Vector2(1.5, 1.5)

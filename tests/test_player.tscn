@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://5lwvecwkdj6l"]
+
+[ext_resource type="Script" uid="uid://dugktwsf1iaea" path="res://tests/test_player.gd" id="1_test_player"]
+[ext_resource type="Script" uid="uid://b41k0bf8bbvyt" path="res://scripts/player/player.gd" id="2_player"]
+[ext_resource type="Script" uid="uid://bmymijel7vfou" path="res://scripts/core/grid_system.gd" id="3_grid_system"]
+[ext_resource type="Script" uid="uid://bx4t7tje2iv8b" path="res://scripts/core/grid_visualizer.gd" id="4_grid_visualizer"]
+[ext_resource type="Texture2D" uid="uid://bfpdumj1jnyso" path="res://icon.svg" id="5_vrrax"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(24, 28)
+
+[node name="TestPlayer" type="Node" unique_id=1826606246]
+script = ExtResource("1_test_player")
+
+[node name="Player" type="CharacterBody2D" parent="." unique_id=1822539561]
+z_index = 10
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("2_player")
+grid_system_path = NodePath("../GridSystem")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=1967992859]
+position = Vector2(16, 16)
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("5_vrrax")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=363122721]
+position = Vector2(16, 18)
+shape = SubResource("RectangleShape2D_1")
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1353675186]
+zoom = Vector2(1.5, 1.5)
+limit_left = 0
+limit_top = 0
+limit_right = 384
+limit_bottom = 640
+
+[node name="GridSystem" type="Node" parent="." unique_id=1926606247]
+script = ExtResource("3_grid_system")
+
+[node name="GridVisualizer" type="Node2D" parent="." unique_id=1926606248]
+script = ExtResource("4_grid_visualizer")
+grid_system_path = NodePath("../GridSystem")
