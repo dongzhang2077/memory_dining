@@ -17,6 +17,7 @@ z_index = 10
 collision_layer = 2
 script = ExtResource("2_player")
 grid_system_path = NodePath("../GridSystem")
+starting_energy = 30
 
 [node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=1967992859]
 position = Vector2(16, 16)
@@ -40,3 +41,4 @@ script = ExtResource("3_grid_system")
 [node name="GridVisualizer" type="Node2D" parent="." unique_id=1926606248]
 script = ExtResource("4_grid_visualizer")
 grid_system_path = NodePath("../GridSystem")
+player_path = NodePath("../Player")

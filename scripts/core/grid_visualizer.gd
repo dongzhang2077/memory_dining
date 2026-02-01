@@ -7,14 +7,22 @@ extends Node2D
 ## 处理方块渲染和视觉效果
 
 @export var grid_system_path: NodePath
+@export var player_path: NodePath
 @export var block_scene: PackedScene
 @export var cell_size: Vector2 = Vector2(32, 32)
 
 ## Grid system reference (resolved from path)
 var grid_system: GridSystem
 
+## Player reference (for scan frame)
+var player: Player
+
 ## Dictionary mapping grid positions to block nodes
 var block_nodes: Dictionary = {}
+
+## Scan frame visual
+var scan_frame: Node2D = null
+var scan_frame_visible: bool = false
 
 ## Block sprite colors for different types
 var block_colors = {
@@ -37,7 +45,14 @@ func _ready():
 	if grid_system == null:
 		push_error("GridVisualizer: GridSystem not assigned!")
 		return
-	
+
+	# Resolve player from path
+	if player_path:
+		player = get_node(player_path) as Player
+		if player != null:
+			player.scan_mode_entered.connect(_on_scan_mode_entered)
+			player.scan_mode_exited.connect(_on_scan_mode_exited)
+
 	# Connect to grid system signals
 	grid_system.grid_initialized.connect(_on_grid_initialized)
 	grid_system.block_changed.connect(_on_block_changed)
@@ -47,6 +62,14 @@ func _ready():
 	grid_system.block_falling.connect(_on_block_falling)
 	grid_system.block_landed.connect(_on_block_landed)
 	grid_system.treasure_broken.connect(_on_treasure_broken)
+	grid_system.bomb_explosion.connect(_on_bomb_explosion)
+
+	# Connect to player bomb signal if player exists
+	if player != null:
+		player.bomb_placed.connect(_on_bomb_placed)
+
+	# Create scan frame visual
+	_create_scan_frame()
 
 	# Initialize if grid is already initialized
 	if grid_system.grid.size() > 0:
@@ -109,9 +132,8 @@ func _create_block_visual(block_data: BlockData) -> StaticBody2D:
 		# Also disable collision for invisible blocks
 		collision.disabled = true
 	elif block_data.is_scanned and (block_data.type == BlockType.Type.TREASURE or block_data.type == BlockType.Type.ENERGY_CRYSTAL):
-		# Add sparkle effect for scanned hidden blocks
-		sprite.modulate.a = 0.7  # Semi-transparent
-		_add_sparkle_effect(sprite)
+		# Scanned blocks: show with distinct border and pulsing effect
+		_add_scanned_effect(block_node, sprite, block_data.type)
 
 	block_node.add_child(sprite)
 
@@ -124,12 +146,84 @@ func _create_block_visual(block_data: BlockData) -> StaticBody2D:
 
 	return block_node
 
-## Add sparkle effect to a sprite
+## Add sparkle effect to a sprite (legacy, kept for compatibility)
 func _add_sparkle_effect(sprite: ColorRect):
 	var tween = create_tween()
 	tween.set_loops()
 	tween.tween_property(sprite, "modulate:a", 1.0, 0.5)
 	tween.tween_property(sprite, "modulate:a", 0.5, 0.5)
+
+## Add scanned effect with distinct border for treasure/energy crystal
+func _add_scanned_effect(block_node: Node2D, sprite: ColorRect, block_type: BlockType.Type):
+	# Set sprite to semi-transparent with slight desaturation
+	sprite.modulate = Color(1.0, 1.0, 1.0, 0.6)
+
+	# Create a distinct colored border based on block type
+	var border_color: Color
+	var inner_glow_color: Color
+	if block_type == BlockType.Type.TREASURE:
+		border_color = Color(1.0, 0.85, 0.0, 1.0)  # Bright gold
+		inner_glow_color = Color(1.0, 0.9, 0.3, 0.4)  # Soft gold glow
+	else:  # ENERGY_CRYSTAL
+		border_color = Color(0.0, 1.0, 1.0, 1.0)  # Bright cyan
+		inner_glow_color = Color(0.3, 1.0, 1.0, 0.4)  # Soft cyan glow
+
+	# Create border using 4 lines
+	var border_width = 3.0
+	var border_node = Node2D.new()
+	border_node.name = "ScannedBorder"
+	border_node.z_index = 5  # Above sprite
+
+	# Top line
+	var top = Line2D.new()
+	top.points = [Vector2(0, 0), Vector2(cell_size.x, 0)]
+	top.width = border_width
+	top.default_color = border_color
+	border_node.add_child(top)
+
+	# Bottom line
+	var bottom = Line2D.new()
+	bottom.points = [Vector2(0, cell_size.y), Vector2(cell_size.x, cell_size.y)]
+	bottom.width = border_width
+	bottom.default_color = border_color
+	border_node.add_child(bottom)
+
+	# Left line
+	var left = Line2D.new()
+	left.points = [Vector2(0, 0), Vector2(0, cell_size.y)]
+	left.width = border_width
+	left.default_color = border_color
+	border_node.add_child(left)
+
+	# Right line
+	var right = Line2D.new()
+	right.points = [Vector2(cell_size.x, 0), Vector2(cell_size.x, cell_size.y)]
+	right.width = border_width
+	right.default_color = border_color
+	border_node.add_child(right)
+
+	block_node.add_child(border_node)
+
+	# Add inner glow effect (semi-transparent overlay)
+	var glow = ColorRect.new()
+	glow.name = "InnerGlow"
+	glow.size = cell_size - Vector2(4, 4)
+	glow.position = Vector2(2, 2)
+	glow.color = inner_glow_color
+	glow.z_index = 1
+	block_node.add_child(glow)
+
+	# Pulsing animation on the border
+	var tween = create_tween()
+	tween.set_loops()
+	tween.tween_property(border_node, "modulate:a", 0.4, 0.6)
+	tween.tween_property(border_node, "modulate:a", 1.0, 0.6)
+
+	# Also pulse the inner glow
+	var glow_tween = create_tween()
+	glow_tween.set_loops()
+	glow_tween.tween_property(glow, "modulate:a", 0.2, 0.8)
+	glow_tween.tween_property(glow, "modulate:a", 0.8, 0.8)
 
 ## Called when a block changes
 func _on_block_changed(position: Vector2i, block_data: BlockData):
@@ -329,3 +423,177 @@ func clear_visuals():
 		if is_instance_valid(node):
 			node.queue_free()
 	block_nodes.clear()
+
+## ============== Scan Frame Visual ==============
+
+## Create the scan frame visual (3x3 green border)
+func _create_scan_frame():
+	scan_frame = Node2D.new()
+	scan_frame.name = "ScanFrame"
+	scan_frame.z_index = 20  # Above blocks and player
+	scan_frame.visible = false
+
+	# Create 4 lines for the border (top, bottom, left, right)
+	var frame_size = cell_size * 3  # 3x3 cells
+	var border_width = 2.0
+	var border_color = Color(0.0, 1.0, 0.0, 0.8)  # Green with slight transparency
+
+	# Top line
+	var top_line = Line2D.new()
+	top_line.name = "TopLine"
+	top_line.points = [Vector2(0, 0), Vector2(frame_size.x, 0)]
+	top_line.width = border_width
+	top_line.default_color = border_color
+	scan_frame.add_child(top_line)
+
+	# Bottom line
+	var bottom_line = Line2D.new()
+	bottom_line.name = "BottomLine"
+	bottom_line.points = [Vector2(0, frame_size.y), Vector2(frame_size.x, frame_size.y)]
+	bottom_line.width = border_width
+	bottom_line.default_color = border_color
+	scan_frame.add_child(bottom_line)
+
+	# Left line
+	var left_line = Line2D.new()
+	left_line.name = "LeftLine"
+	left_line.points = [Vector2(0, 0), Vector2(0, frame_size.y)]
+	left_line.width = border_width
+	left_line.default_color = border_color
+	scan_frame.add_child(left_line)
+
+	# Right line
+	var right_line = Line2D.new()
+	right_line.name = "RightLine"
+	right_line.points = [Vector2(frame_size.x, 0), Vector2(frame_size.x, frame_size.y)]
+	right_line.width = border_width
+	right_line.default_color = border_color
+	scan_frame.add_child(right_line)
+
+	add_child(scan_frame)
+
+## Called when player enters scan mode
+func _on_scan_mode_entered():
+	scan_frame_visible = true
+	scan_frame.visible = true
+
+## Called when player exits scan mode
+func _on_scan_mode_exited():
+	scan_frame_visible = false
+	scan_frame.visible = false
+
+## Update scan frame position (called from _process)
+func _process(delta: float):
+	if scan_frame_visible and player != null:
+		_update_scan_frame_position()
+
+## Update the scan frame position to follow player's scan position
+func _update_scan_frame_position():
+	if player == null or scan_frame == null:
+		return
+
+	var scan_center = player.get_scan_frame_grid_position()
+	# Convert center to top-left corner (center - 1 in each direction)
+	var top_left = Vector2i(scan_center.x - 1, scan_center.y - 1)
+	var world_pos = grid_system.grid_to_world(top_left)
+	scan_frame.position = world_pos
+
+## Show scan frame
+func show_scan_frame():
+	scan_frame_visible = true
+	scan_frame.visible = true
+
+## Hide scan frame
+func hide_scan_frame():
+	scan_frame_visible = false
+	scan_frame.visible = false
+
+## ============== Bomb Visual ==============
+
+## Called when a bomb is placed
+func _on_bomb_placed(bomb_pos: Vector2i):
+	_create_bomb_visual(bomb_pos)
+
+## Create bomb visual at position
+func _create_bomb_visual(bomb_pos: Vector2i):
+	var bomb_node = Node2D.new()
+	bomb_node.name = "Bomb_%d_%d" % [bomb_pos.x, bomb_pos.y]
+	bomb_node.z_index = 15  # Above blocks, below player
+
+	# Create bomb sprite (simple red circle)
+	var bomb_sprite = ColorRect.new()
+	bomb_sprite.name = "BombSprite"
+	bomb_sprite.size = cell_size * 0.8
+	bomb_sprite.position = cell_size * 0.1  # Center it
+	bomb_sprite.color = Color(0.8, 0.1, 0.1)  # Red
+
+	bomb_node.add_child(bomb_sprite)
+
+	# Position at grid location
+	bomb_node.position = grid_system.grid_to_world(bomb_pos)
+
+	add_child(bomb_node)
+
+	# Blinking animation before explosion
+	var tween = create_tween()
+	tween.set_loops(5)  # Blink 5 times in 1 second
+	tween.tween_property(bomb_sprite, "modulate:a", 0.3, 0.1)
+	tween.tween_property(bomb_sprite, "modulate:a", 1.0, 0.1)
+
+	# Remove bomb visual when it explodes (after fuse time)
+	# The bomb will be removed by _on_bomb_explosion
+	bomb_node.set_meta("bomb_pos", bomb_pos)
+
+## Called when bomb explodes
+func _on_bomb_explosion(center: Vector2i, affected_positions: Array):
+	# Remove bomb visual
+	for child in get_children():
+		if child.name.begins_with("Bomb_"):
+			if child.has_meta("bomb_pos") and child.get_meta("bomb_pos") == center:
+				child.queue_free()
+				break
+
+	# Create explosion effect at center and affected positions
+	_create_explosion_effect(center)
+	for pos in affected_positions:
+		if pos != center:
+			_create_explosion_effect(pos)
+
+## Create explosion visual effect
+func _create_explosion_effect(pos: Vector2i):
+	var world_pos = grid_system.grid_to_world(pos)
+
+	# Create explosion particles
+	var particles = CPUParticles2D.new()
+	particles.name = "ExplosionParticles"
+	particles.position = world_pos + cell_size / 2
+	particles.emitting = true
+	particles.amount = 20
+	particles.lifetime = 0.4
+	particles.explosiveness = 1.0
+	particles.direction = Vector2(0, -1)
+	particles.spread = 180
+	particles.initial_velocity_min = 50
+	particles.initial_velocity_max = 100
+	particles.gravity = Vector2(0, 200)
+	particles.color = Color(1.0, 0.5, 0.0)  # Orange
+
+	add_child(particles)
+
+	# Also create a flash
+	var flash = ColorRect.new()
+	flash.size = cell_size
+	flash.position = world_pos
+	flash.color = Color(1.0, 1.0, 0.5, 0.8)  # Yellow-white flash
+	flash.z_index = 25
+	add_child(flash)
+
+	# Fade out flash
+	var tween = create_tween()
+	tween.tween_property(flash, "modulate:a", 0.0, 0.2)
+	tween.tween_callback(flash.queue_free)
+
+	# Auto-remove particles
+	await get_tree().create_timer(0.5).timeout
+	if is_instance_valid(particles):
+		particles.queue_free()

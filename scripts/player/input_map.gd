@@ -20,6 +20,12 @@
 ##
 ## Action Name: restart
 ##   - Keyboard: R
+##
+## Action Name: cancel
+##   - Keyboard: Escape
+##
+## Action Name: scan_confirm
+##   - Mouse: Left Click
 
 ## Alternatively, you can set up input map programmatically:
 class_name InputMapConfig
@@ -44,6 +50,16 @@ static func setup_input_map():
 	var key_d = InputEventKey.new()
 	key_d.keycode = KEY_D
 	InputMap.action_add_event("move_right", key_d)
+
+	# Move Up (for scan frame control)
+	if not InputMap.has_action("move_up"):
+		InputMap.add_action("move_up")
+	var up_arrow = InputEventKey.new()
+	up_arrow.keycode = KEY_UP
+	InputMap.action_add_event("move_up", up_arrow)
+	var key_w = InputEventKey.new()
+	key_w.keycode = KEY_W
+	InputMap.action_add_event("move_up", key_w)
 
 	# Move Down (for digging direction)
 	if not InputMap.has_action("move_down"):
@@ -82,3 +98,17 @@ static func setup_input_map():
 	var key_r = InputEventKey.new()
 	key_r.keycode = KEY_R
 	InputMap.action_add_event("restart", key_r)
+
+	# Cancel (for exiting scan mode, etc.)
+	if not InputMap.has_action("cancel"):
+		InputMap.add_action("cancel")
+	var key_esc = InputEventKey.new()
+	key_esc.keycode = KEY_ESCAPE
+	InputMap.action_add_event("cancel", key_esc)
+
+	# Scan Confirm (mouse click to confirm scan)
+	if not InputMap.has_action("scan_confirm"):
+		InputMap.add_action("scan_confirm")
+	var mouse_left = InputEventMouseButton.new()
+	mouse_left.button_index = MOUSE_BUTTON_LEFT
+	InputMap.action_add_event("scan_confirm", mouse_left)

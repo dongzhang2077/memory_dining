@@ -15,6 +15,7 @@ signal energy_gained(amount: int)
 signal block_falling(from_position: Vector2i, to_position: Vector2i, block_data: BlockData)
 signal block_landed(position: Vector2i, block_data: BlockData, fall_distance: int)
 signal treasure_broken(position: Vector2i, treasure_data: TreasureData)
+signal bomb_explosion(center: Vector2i, affected_positions: Array)
 
 ## Grid dimensions
 var grid_width: int = 12
@@ -270,18 +271,52 @@ func dig_at(position: Vector2i) -> Dictionary:
 ## Returns: Array of revealed blocks
 func scan_area(start_position: Vector2i) -> Array:
 	var revealed_blocks = []
-	
+
 	for col in range(start_position.x, start_position.x + 2):
 		for row in range(start_position.y, start_position.y + 2):
 			var pos = Vector2i(col, row)
 			var block = get_block(pos)
-			
+
 			if block != null and not block.is_visible:
 				block.set_scanned()
 				revealed_blocks.append(block)
 				block_changed.emit(pos, block)
-	
+
 	return revealed_blocks
+
+## Scan a 3x3 area centered at position
+## Only reveals TREASURE and ENERGY_CRYSTAL blocks
+## Returns: Number of blocks revealed
+func scan_area_3x3(center_position: Vector2i) -> int:
+	var revealed_count = 0
+	print("=== SCANNING 3x3 area at center (%d, %d) ===" % [center_position.x, center_position.y])
+
+	# Scan 3x3 area centered on position
+	for col in range(center_position.x - 1, center_position.x + 2):
+		for row in range(center_position.y - 1, center_position.y + 2):
+			var pos = Vector2i(col, row)
+
+			# Skip invalid positions
+			if not _is_valid_position(pos):
+				continue
+
+			var block = get_block(pos)
+
+			# Only reveal hidden treasure and energy crystal blocks
+			if block != null and not block.is_scanned:
+				if block.type == BlockType.Type.TREASURE or block.type == BlockType.Type.ENERGY_CRYSTAL:
+					block.set_scanned()
+					revealed_count += 1
+					var type_name = BlockType.get_type_name(block.type)
+					print("  ✓ REVEALED: %s at (%d, %d)" % [type_name, pos.x, pos.y])
+					block_changed.emit(pos, block)
+
+	if revealed_count == 0:
+		print("  (No treasure or energy crystals found in this area)")
+	else:
+		print("  Total revealed: %d blocks" % revealed_count)
+
+	return revealed_count
 
 ## Check if block exists at position
 func has_block(position: Vector2i) -> bool:
@@ -395,3 +430,80 @@ func load_grid_state(state: Dictionary):
 			block.is_visible = block_data.is_visible
 			block.is_scanned = block_data.is_scanned
 			grid[pos.x][pos.y] = block
+
+## ============== Bomb Explosion ==============
+
+## Explode in a cross pattern from center position
+## Returns: Dictionary with explosion results
+func explode_cross(center: Vector2i, range_cells: int) -> Dictionary:
+	var result = {
+		"destroyed_blocks": 0,
+		"energy_gained": 0,
+		"treasures_destroyed": 0
+	}
+
+	var affected_positions: Array[Vector2i] = []
+
+	# Collect all positions in cross pattern
+	# Center position (where bomb was placed)
+	affected_positions.append(center)
+
+	# Four directions: up, down, left, right
+	for i in range(1, range_cells + 1):
+		affected_positions.append(Vector2i(center.x, center.y - i))  # Up
+		affected_positions.append(Vector2i(center.x, center.y + i))  # Down
+		affected_positions.append(Vector2i(center.x - i, center.y))  # Left
+		affected_positions.append(Vector2i(center.x + i, center.y))  # Right
+
+	# Process each position
+	for pos in affected_positions:
+		if not _is_valid_position(pos):
+			continue
+
+		var block = get_block(pos)
+		if block == null:
+			continue
+
+		# Skip unbreakable blocks
+		if block.type == BlockType.Type.UNBREAKABLE:
+			print("  Unbreakable block at (%d, %d) - not affected" % [pos.x, pos.y])
+			continue
+
+		var type_name = BlockType.get_type_name(block.type)
+
+		# Handle treasure specially - destroyed without value
+		if block.type == BlockType.Type.TREASURE:
+			print("  ✗ TREASURE DESTROYED at (%d, %d): %s" % [pos.x, pos.y, block.treasure_data.name if block.treasure_data else "Unknown"])
+			result.treasures_destroyed += 1
+			# Remove block without giving energy
+			grid[pos.x][pos.y] = null
+			block_destroyed.emit(pos, block.type)
+			block_changed.emit(pos, null)
+		else:
+			# Other blocks give energy
+			var energy = BlockType.get_energy_yield(block.type)
+			result.energy_gained += energy
+			print("  ✓ DESTROYED: %s at (%d, %d), energy +%d" % [type_name, pos.x, pos.y, energy])
+
+			# Emit signals
+			block_destroyed.emit(pos, block.type)
+			if energy > 0:
+				energy_gained.emit(energy)
+
+			# Remove block
+			grid[pos.x][pos.y] = null
+			block_changed.emit(pos, null)
+
+		result.destroyed_blocks += 1
+
+	# Emit explosion signal for visual effects
+	bomb_explosion.emit(center, affected_positions)
+
+	# Check for falling blocks after explosion
+	check_falling_blocks()
+
+	print("Explosion complete: %d blocks destroyed, %d energy gained, %d treasures lost" % [
+		result.destroyed_blocks, result.energy_gained, result.treasures_destroyed
+	])
+
+	return result
