@@ -122,8 +122,17 @@ func _create_block_visual(block_data: BlockData) -> StaticBody2D:
 	sprite.name = "Sprite"
 	sprite.size = cell_size
 
-	# Set color based on block type
-	var color = block_colors.get(block_data.type, Color.WHITE)
+	# Determine display color based on block type and scanned status
+	var color: Color
+	var is_hidden_valuable = (block_data.type == BlockType.Type.TREASURE or block_data.type == BlockType.Type.ENERGY_CRYSTAL)
+
+	if is_hidden_valuable and not block_data.is_scanned:
+		# Hidden treasure/crystal - disguise as soft dirt
+		color = block_colors.get(BlockType.Type.SOFT_DIRT, Color.WHITE)
+	else:
+		# Normal block or scanned valuable - show true color
+		color = block_colors.get(block_data.type, Color.WHITE)
+
 	sprite.color = color
 
 	# Adjust visibility based on block data
@@ -131,7 +140,7 @@ func _create_block_visual(block_data: BlockData) -> StaticBody2D:
 		sprite.modulate.a = 0.0  # Invisible
 		# Also disable collision for invisible blocks
 		collision.disabled = true
-	elif block_data.is_scanned and (block_data.type == BlockType.Type.TREASURE or block_data.type == BlockType.Type.ENERGY_CRYSTAL):
+	elif block_data.is_scanned and is_hidden_valuable:
 		# Scanned blocks: show with distinct border and pulsing effect
 		_add_scanned_effect(block_node, sprite, block_data.type)
 

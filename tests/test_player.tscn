@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://bmymijel7vfou" path="res://scripts/core/grid_system.gd" id="3_grid_system"]
 [ext_resource type="Script" uid="uid://bx4t7tje2iv8b" path="res://scripts/core/grid_visualizer.gd" id="4_grid_visualizer"]
 [ext_resource type="Texture2D" uid="uid://bfpdumj1jnyso" path="res://icon.svg" id="5_vrrax"]
+[ext_resource type="Script" uid="uid://ca0u78gbqre6l" path="res://scripts/ui/mini_map.gd" id="6_mini_map"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
 size = Vector2(24, 28)
@@ -42,3 +43,20 @@ script = ExtResource("3_grid_system")
 script = ExtResource("4_grid_visualizer")
 grid_system_path = NodePath("../GridSystem")
 player_path = NodePath("../Player")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1719780785]
+
+[node name="MiniMap" type="Control" parent="CanvasLayer" unique_id=824595701]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -134.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 214.0
+grow_horizontal = 0
+script = ExtResource("6_mini_map")
+grid_system_path = NodePath("../../GridSystem")
+grid_visualizer_path = NodePath("../../GridVisualizer")
+player_path = NodePath("../../Player")
