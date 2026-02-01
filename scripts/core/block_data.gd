@@ -6,7 +6,7 @@ extends RefCounted
 
 var type: BlockType.Type
 var durability: int
-var is_visible: bool = false
+var is_visible: bool = true  # All blocks are always visible
 var is_scanned: bool = false
 var treasure_data: TreasureData = null  # Only for treasure blocks
 var grid_position: Vector2i  # (column, row)
@@ -16,13 +16,10 @@ func _init(p_type: BlockType.Type, p_position: Vector2i):
 	type = p_type
 	grid_position = p_position
 	durability = BlockType.get_hits_to_break(p_type)
-	
-	# Initialize visibility based on type
-	match type:
-		BlockType.Type.TREASURE, BlockType.Type.ENERGY_CRYSTAL:
-			is_visible = false  # Hidden until scanned
-		_:
-			is_visible = true
+
+	# All blocks are visible - hidden treasures/crystals appear as soft_dirt until scanned
+	# The is_scanned flag controls whether to show true texture or disguised texture
+	is_visible = true
 
 ## Take damage from mining
 ## Returns true if block is destroyed

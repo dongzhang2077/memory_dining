@@ -18,6 +18,25 @@ enum Rarity {
 	LEGENDARY    # 3% - 800-1500 coins
 }
 
+## All available treasure sprite paths
+const TREASURE_SPRITES: Array[String] = [
+	"res://assets/sprites/treatures/treasure_arcade_80s_nobg.png",
+	"res://assets/sprites/treatures/treasure_boombox_80s_nobg.png",
+	"res://assets/sprites/treatures/treasure_camera_60s_nobg.png",
+	"res://assets/sprites/treatures/treasure_cd_90s_nobg.png",
+	"res://assets/sprites/treatures/treasure_floppy_90s_nobg.png",
+	"res://assets/sprites/treatures/treasure_gameboy_90s_nobg.png",
+	"res://assets/sprites/treatures/treasure_pager_90s_nobg.png",
+	"res://assets/sprites/treatures/treasure_radio_60s_nobg.png",
+	"res://assets/sprites/treatures/treasure_robot_70s_nobg.png",
+	"res://assets/sprites/treatures/treasure_rotary_phone_80s_nobg.png",
+	"res://assets/sprites/treatures/treasure_tubes_60s_nobg.png",
+	"res://assets/sprites/treatures/treasure_vinyl_80s_nobg.png",
+]
+
+## Track used sprites for current level to avoid duplicates
+static var _used_sprites_this_level: Array[String] = []
+
 var id: String
 var name: String
 var description: String
@@ -78,22 +97,47 @@ static func get_rarity_color(rarity: Rarity) -> Color:
 		_:
 			return Color.WHITE
 
+## Reset used sprites for a new level
+static func reset_level_sprites():
+	_used_sprites_this_level.clear()
+
+## Get a unique random sprite path (not used in this level yet)
+static func _get_unique_sprite_path() -> String:
+	# Get available sprites (not used yet)
+	var available: Array[String] = []
+	for sprite in TREASURE_SPRITES:
+		if sprite not in _used_sprites_this_level:
+			available.append(sprite)
+
+	# If all sprites used, reset and use any
+	if available.is_empty():
+		available = TREASURE_SPRITES.duplicate()
+
+	# Pick random from available
+	var sprite_path = available[randi() % available.size()]
+	_used_sprites_this_level.append(sprite_path)
+	return sprite_path
+
 ## Generate random treasure for a specific era
 static func generate_random(era: Era) -> TreasureData:
 	var rand_rarity = _generate_random_rarity()
 	var rand_value = _generate_value_for_rarity(rand_rarity)
-	
+
 	# Generate name based on era and rarity
 	var treasure_name = _generate_treasure_name(era, rand_rarity)
 	var treasure_id = "treasure_%s_%d" % [get_era_name(era).to_lower(), randi()]
-	
+
+	# Get unique sprite for this level
+	var sprite = _get_unique_sprite_path()
+
 	return TreasureData.new(
 		treasure_id,
 		treasure_name,
 		"A vintage item from the %s" % get_era_name(era),
 		era,
 		rand_rarity,
-		rand_value
+		rand_value,
+		sprite
 	)
 
 ## Generate random rarity based on probability

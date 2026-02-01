@@ -280,7 +280,7 @@ func _update_player_marker():
 	)
 
 func _start_marker_blink():
-	var tween = create_tween()
+	var tween = player_marker.create_tween()  # Bind to marker so tween stops when freed
 	tween.set_loops()
 	tween.tween_property(player_marker, "modulate:a", 0.3, 0.4)
 	tween.tween_property(player_marker, "modulate:a", 1.0, 0.4)

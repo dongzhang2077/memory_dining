@@ -36,6 +36,9 @@ var block_colors = {
 ## Block sprite textures
 var block_textures: Dictionary = {}
 
+## Explosion animation resource
+var explosion_frames: SpriteFrames = null
+
 ## Load block textures from assets
 func _load_block_textures():
 	block_textures[BlockType.Type.SOFT_DIRT] = load("res://assets/sprites/blocks/soft_dirt.png")
@@ -43,6 +46,8 @@ func _load_block_textures():
 	block_textures[BlockType.Type.UNBREAKABLE] = load("res://assets/sprites/blocks/unbreakable.png")
 	block_textures[BlockType.Type.TREASURE] = load("res://assets/sprites/blocks/treasure.png")
 	block_textures[BlockType.Type.ENERGY_CRYSTAL] = load("res://assets/sprites/blocks/energy_crystal.png")
+	# Load explosion animation
+	explosion_frames = load("res://assets/sprites/player/explosion/explotion.tres")
 	print("Block textures loaded")
 
 ## Initialize with grid system
@@ -143,7 +148,17 @@ func _create_block_visual(block_data: BlockData) -> StaticBody2D:
 	sprite.centered = false  # Position from top-left corner
 
 	# Try to use texture, fallback to ColorRect if not available
-	var texture = block_textures.get(display_type)
+	var texture: Texture2D = null
+
+	# For scanned treasure blocks, use the unique treasure sprite
+	if block_data.is_scanned and block_data.type == BlockType.Type.TREASURE and block_data.treasure_data != null:
+		if block_data.treasure_data.sprite_path != "":
+			texture = load(block_data.treasure_data.sprite_path)
+
+	# Fallback to default block texture
+	if texture == null:
+		texture = block_textures.get(display_type)
+
 	if texture != null:
 		sprite.texture = texture
 		# Scale sprite to fit cell size
@@ -175,7 +190,7 @@ func _create_block_visual(block_data: BlockData) -> StaticBody2D:
 
 ## Add sparkle effect to a sprite (legacy, kept for compatibility)
 func _add_sparkle_effect(sprite: Node2D):
-	var tween = create_tween()
+	var tween = sprite.create_tween()  # Bind to sprite so tween stops when sprite is freed
 	tween.set_loops()
 	tween.tween_property(sprite, "modulate:a", 1.0, 0.5)
 	tween.tween_property(sprite, "modulate:a", 0.5, 0.5)
@@ -240,17 +255,66 @@ func _add_scanned_effect(block_node: Node2D, sprite: Node2D, block_type: BlockTy
 	glow.z_index = 1
 	block_node.add_child(glow)
 
-	# Pulsing animation on the border
-	var tween = create_tween()
+	# Pulsing animation on the border - bind to block_node so tween stops when node is freed
+	var tween = block_node.create_tween()
 	tween.set_loops()
 	tween.tween_property(border_node, "modulate:a", 0.4, 0.6)
 	tween.tween_property(border_node, "modulate:a", 1.0, 0.6)
 
-	# Also pulse the inner glow
-	var glow_tween = create_tween()
+	# Also pulse the inner glow - bind to block_node
+	var glow_tween = block_node.create_tween()
 	glow_tween.set_loops()
 	glow_tween.tween_property(glow, "modulate:a", 0.2, 0.8)
 	glow_tween.tween_property(glow, "modulate:a", 0.8, 0.8)
+
+	# Add sparkle particles for treasure
+	_add_sparkle_particles(block_node, block_type)
+
+## Add sparkle particle effect for scanned treasures
+func _add_sparkle_particles(block_node: Node2D, block_type: BlockType.Type):
+	var particles = CPUParticles2D.new()
+	particles.name = "SparkleParticles"
+	particles.position = cell_size / 2  # Center of block
+	particles.z_index = 10
+
+	# Configure particle emission
+	particles.emitting = true
+	particles.amount = 6
+	particles.lifetime = 1.5
+	particles.one_shot = false
+	particles.explosiveness = 0.0
+	particles.randomness = 0.5
+
+	# Emission shape - small area around center
+	particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	particles.emission_rect_extents = cell_size * 0.3
+
+	# Particle movement - float upward slowly
+	particles.direction = Vector2(0, -1)
+	particles.spread = 60.0
+	particles.gravity = Vector2(0, -10)
+	particles.initial_velocity_min = 5.0
+	particles.initial_velocity_max = 15.0
+
+	# Particle size - small sparkles
+	particles.scale_amount_min = 1.5
+	particles.scale_amount_max = 3.0
+
+	# Color based on block type
+	if block_type == BlockType.Type.TREASURE:
+		particles.color = Color(1.0, 0.9, 0.3, 0.9)  # Gold sparkles
+	else:  # ENERGY_CRYSTAL
+		particles.color = Color(0.5, 1.0, 1.0, 0.9)  # Cyan sparkles
+
+	# Fade out
+	var color_ramp = Gradient.new()
+	color_ramp.set_offset(0, 0.0)
+	color_ramp.set_color(0, Color(1, 1, 1, 1))
+	color_ramp.set_offset(1, 1.0)
+	color_ramp.set_color(1, Color(1, 1, 1, 0))
+	particles.color_ramp = color_ramp
+
+	block_node.add_child(particles)
 
 ## Called when a block changes
 func _on_block_changed(position: Vector2i, block_data: BlockData):
@@ -286,29 +350,51 @@ func _on_treasure_revealed(position: Vector2i, treasure_data: TreasureData):
 	# Create treasure collection effect
 	_create_treasure_effect(position, treasure_data)
 
-## Create destruction effect
+## Create destruction effect using explosion animation
 func _create_destruction_effect(position: Vector2i, block_type: BlockType.Type):
 	var world_pos = grid_system.grid_to_world(position)
-	
-	# Create particles
-	var particles = CPUParticles2D.new()
-	particles.name = "DestructionParticles"
-	particles.position = world_pos
-	particles.emitting = true
-	particles.amount = 10
-	particles.lifetime = 0.5
-	particles.explosiveness = 0.8
-	
-	# Set particle color
-	var color = block_colors.get(block_type, Color.WHITE)
-	particles.color = color
-	
-	add_child(particles)
-	
-	# Auto-remove after animation
-	await get_tree().create_timer(0.6).timeout
-	if is_instance_valid(particles):
-		particles.queue_free()
+
+	# Create animated sprite for explosion
+	if explosion_frames != null:
+		var explosion_sprite = AnimatedSprite2D.new()
+		explosion_sprite.name = "ExplosionEffect"
+		explosion_sprite.sprite_frames = explosion_frames
+		explosion_sprite.centered = true  # Center the sprite
+
+		# Position at block center (world_pos is top-left, add half cell to center)
+		explosion_sprite.position = world_pos + cell_size / 2
+
+		# Get actual texture size from first frame and scale to match cell size
+		var first_frame = explosion_frames.get_frame_texture("explosion", 0)
+		if first_frame != null:
+			var tex_size = first_frame.get_size()
+			explosion_sprite.scale = cell_size / tex_size
+
+		explosion_sprite.z_index = 20  # Above blocks
+
+		add_child(explosion_sprite)
+		explosion_sprite.play("explosion")
+
+		# Connect to animation_finished to auto-remove
+		explosion_sprite.animation_finished.connect(func(): explosion_sprite.queue_free())
+	else:
+		# Fallback to particle effect if explosion animation not loaded
+		var particles = CPUParticles2D.new()
+		particles.name = "DestructionParticles"
+		particles.position = world_pos + cell_size / 2
+		particles.emitting = true
+		particles.amount = 10
+		particles.lifetime = 0.5
+		particles.explosiveness = 0.8
+
+		var color = block_colors.get(block_type, Color.WHITE)
+		particles.color = color
+
+		add_child(particles)
+
+		await get_tree().create_timer(0.6).timeout
+		if is_instance_valid(particles):
+			particles.queue_free()
 
 ## Create treasure collection effect
 func _create_treasure_effect(position: Vector2i, treasure_data: TreasureData):

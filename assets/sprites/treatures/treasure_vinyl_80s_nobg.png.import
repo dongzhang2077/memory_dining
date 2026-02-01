@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dc71o2a0ryus4"
-path="res://.godot/imported/sparkle_outer_2.png-fc7cd4a76a2aa3da5487c5e79ac8c59e.ctex"
+uid="uid://datyufg58p0ao"
+path="res://.godot/imported/treasure_vinyl_80s_nobg.png-7edd1c9c63819b9ec26119e293206b87.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/player/sparkle/sparkle_outer_2.png"
-dest_files=["res://.godot/imported/sparkle_outer_2.png-fc7cd4a76a2aa3da5487c5e79ac8c59e.ctex"]
+source_file="res://assets/sprites/treatures/treasure_vinyl_80s_nobg.png"
+dest_files=["res://.godot/imported/treasure_vinyl_80s_nobg.png-7edd1c9c63819b9ec26119e293206b87.ctex"]
 
 [params]
 

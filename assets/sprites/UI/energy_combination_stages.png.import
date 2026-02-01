@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dc71o2a0ryus4"
-path="res://.godot/imported/sparkle_outer_2.png-fc7cd4a76a2aa3da5487c5e79ac8c59e.ctex"
+uid="uid://m8mhue7hsikf"
+path="res://.godot/imported/energy_combination_stages.png-3fadd7b8fda01afffd6019dcd00990cb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/player/sparkle/sparkle_outer_2.png"
-dest_files=["res://.godot/imported/sparkle_outer_2.png-fc7cd4a76a2aa3da5487c5e79ac8c59e.ctex"]
+source_file="res://assets/sprites/UI/energy_combination_stages.png"
+dest_files=["res://.godot/imported/energy_combination_stages.png-3fadd7b8fda01afffd6019dcd00990cb.ctex"]
 
 [params]
 

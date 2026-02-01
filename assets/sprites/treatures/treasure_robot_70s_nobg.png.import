@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dc71o2a0ryus4"
-path="res://.godot/imported/sparkle_outer_2.png-fc7cd4a76a2aa3da5487c5e79ac8c59e.ctex"
+uid="uid://dpi4lsd6d4xwb"
+path="res://.godot/imported/treasure_robot_70s_nobg.png-cb1b8725be9e98a74d3d10492da090ff.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/player/sparkle/sparkle_outer_2.png"
-dest_files=["res://.godot/imported/sparkle_outer_2.png-fc7cd4a76a2aa3da5487c5e79ac8c59e.ctex"]
+source_file="res://assets/sprites/treatures/treasure_robot_70s_nobg.png"
+dest_files=["res://.godot/imported/treasure_robot_70s_nobg.png-cb1b8725be9e98a74d3d10492da090ff.ctex"]
 
 [params]
 

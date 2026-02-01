@@ -6,12 +6,19 @@
 [ext_resource type="Script" uid="uid://bx4t7tje2iv8b" path="res://scripts/core/grid_visualizer.gd" id="4_grid_visualizer"]
 [ext_resource type="SpriteFrames" uid="uid://djmca8eymrnq8" path="res://assets/sprites/player/player_animations.tres" id="5_player_anims"]
 [ext_resource type="Script" uid="uid://ca0u78gbqre6l" path="res://scripts/ui/mini_map.gd" id="6_mini_map"]
+[ext_resource type="Script" uid="uid://bo6fcluk4tiei" path="res://scripts/ui/hud.gd" id="7_hud"]
+[ext_resource type="Texture2D" path="res://assets/sprites/background/level_bg.png" id="8_level_bg"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_b2j1i"]
 height = 28.0
 
 [node name="TestPlayer" type="Node" unique_id=1826606246]
 script = ExtResource("1_test_player")
+
+[node name="Background" type="Sprite2D" parent="."]
+z_index = -10
+centered = false
+texture = ExtResource("8_level_bg")
 
 [node name="Player" type="CharacterBody2D" parent="." unique_id=1822539561]
 z_index = 10
@@ -31,7 +38,7 @@ position = Vector2(16, 15)
 shape = SubResource("CapsuleShape2D_b2j1i")
 
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=1353675186]
-zoom = Vector2(1.5, 1.5)
+zoom = Vector2(2.5, 2.5)
 limit_left = 0
 limit_top = 0
 limit_right = 384
@@ -46,6 +53,16 @@ grid_system_path = NodePath("../GridSystem")
 player_path = NodePath("../Player")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1719780785]
+
+[node name="HUD" type="Control" parent="CanvasLayer" unique_id=1294713690]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 200.0
+offset_bottom = 150.0
+script = ExtResource("7_hud")
+player_path = NodePath("../../Player")
+grid_system_path = NodePath("../../GridSystem")
+energy_icon_size = 200.0
 
 [node name="MiniMap" type="Control" parent="CanvasLayer" unique_id=824595701]
 layout_mode = 3

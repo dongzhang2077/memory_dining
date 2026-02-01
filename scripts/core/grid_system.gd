@@ -142,6 +142,9 @@ func initialize(width: int = 12, height: int = 20):
 
 ## Fill grid with default soft dirt blocks
 func _fill_with_default_blocks():
+	# Reset treasure sprites for this new level
+	TreasureData.reset_level_sprites()
+
 	for col in range(grid_width):
 		for row in range(grid_height):
 			# Skip top row for player spawn

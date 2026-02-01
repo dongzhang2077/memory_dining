@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dc71o2a0ryus4"
-path="res://.godot/imported/sparkle_outer_2.png-fc7cd4a76a2aa3da5487c5e79ac8c59e.ctex"
+uid="uid://3o85kdp610yo"
+path="res://.godot/imported/treasure_arcade_80s_nobg.png-da0d8b599b906bbe51ffbdf5f03553e8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/player/sparkle/sparkle_outer_2.png"
-dest_files=["res://.godot/imported/sparkle_outer_2.png-fc7cd4a76a2aa3da5487c5e79ac8c59e.ctex"]
+source_file="res://assets/sprites/treatures/treasure_arcade_80s_nobg.png"
+dest_files=["res://.godot/imported/treasure_arcade_80s_nobg.png-da0d8b599b906bbe51ffbdf5f03553e8.ctex"]
 
 [params]
 

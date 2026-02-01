@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dq7rhnpy45mh"
-path="res://.godot/imported/sparkle_outer_0.png-bdf541d2ffa16442073250ef86d2cf02.ctex"
+path="res://.godot/imported/sparkle_outer_0.png-cfe2c9a8bb2e584bb3bfc028664ee8db.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://animations/sparkle_outer_0.png"
-dest_files=["res://.godot/imported/sparkle_outer_0.png-bdf541d2ffa16442073250ef86d2cf02.ctex"]
+source_file="res://assets/sprites/player/sparkle/sparkle_outer_0.png"
+dest_files=["res://.godot/imported/sparkle_outer_0.png-cfe2c9a8bb2e584bb3bfc028664ee8db.ctex"]
 
 [params]
 

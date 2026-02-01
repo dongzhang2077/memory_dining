@@ -21,6 +21,7 @@ signal scan_failed_no_energy()
 signal bomb_placed(position: Vector2i)
 signal bomb_exploded(position: Vector2i)
 signal bomb_failed_no_energy()
+signal player_respawned()
 
 ## Player state enum
 enum State {
@@ -78,6 +79,12 @@ var dig_timer: float = 0.0
 ## Input
 var input_direction: int = 0  # -1 left, 0 none, 1 right
 
+## Death position for respawn
+var death_position: Vector2i = Vector2i.ZERO
+
+## Freeze state for treasure celebration
+var is_frozen: bool = false
+
 func _ready():
 	# Resolve grid system from path
 	if grid_system_path:
@@ -128,6 +135,10 @@ func _spawn_at_start_position():
 
 func _physics_process(delta):
 	if current_state == State.DEAD:
+		return
+
+	# Freeze player during treasure celebration
+	if is_frozen:
 		return
 
 	# In scanning mode, only handle scan input
@@ -376,18 +387,83 @@ func _take_damage(amount: int, reason: String):
 func _die(reason: String):
 	current_state = State.DEAD
 	velocity = Vector2.ZERO
+	death_position = grid_position  # Save death position for respawn
 	player_died.emit(reason)
 	print("Player died: %s" % reason)
 
 ## Respawn
 func respawn():
+	# Reset health and energy to initial values
 	current_hp = max_hp
-	current_energy = 0
+	current_energy = starting_energy
 	current_state = State.IDLE
 	velocity = Vector2.ZERO
 	is_falling = false
+
+	# Emit signals to update HUD
 	energy_changed.emit(current_energy, max_energy)
-	_spawn_at_start_position()
+	player_respawned.emit()
+
+	_spawn_at_nearest_platform()
+
+## Find and spawn at the nearest platform from death position
+func _spawn_at_nearest_platform():
+	# Search for nearest valid spawn position (empty cell above a solid block)
+	var spawn_pos = _find_nearest_spawn_position(death_position)
+	if spawn_pos != Vector2i(-1, -1):
+		grid_position = spawn_pos
+		position = grid_system.grid_to_world(grid_position)
+		print("Respawned at (%d, %d)" % [spawn_pos.x, spawn_pos.y])
+	else:
+		# Fallback to start position if no valid spawn found
+		_spawn_at_start_position()
+		print("No valid spawn found, respawned at start")
+
+## Find the nearest valid spawn position from a given position
+## A valid spawn is an empty cell with a solid block below it
+func _find_nearest_spawn_position(from_pos: Vector2i) -> Vector2i:
+	# Search in expanding circles from death position
+	var max_search_radius = max(grid_system.grid_width, grid_system.grid_height)
+
+	for radius in range(0, max_search_radius):
+		# Check positions at this radius, prioritizing same column
+		for dx in range(-radius, radius + 1):
+			for dy in range(-radius, radius + 1):
+				# Only check positions at exactly this radius (not inner)
+				if radius > 0 and abs(dx) < radius and abs(dy) < radius:
+					continue
+
+				var check_pos = Vector2i(from_pos.x + dx, from_pos.y + dy)
+
+				# Check bounds
+				if check_pos.x < 0 or check_pos.x >= grid_system.grid_width:
+					continue
+				if check_pos.y < 0 or check_pos.y >= grid_system.grid_height - 1:
+					continue
+
+				# Check if this position is valid for spawning
+				if _is_valid_spawn_position(check_pos):
+					return check_pos
+
+	return Vector2i(-1, -1)  # No valid position found
+
+## Check if a position is valid for spawning (empty cell above solid ground)
+func _is_valid_spawn_position(pos: Vector2i) -> bool:
+	# Position must be empty (no block)
+	var block_at_pos = grid_system.get_block(pos)
+	if block_at_pos != null:
+		return false
+
+	# Position below must have a solid block (ground to stand on)
+	var below_pos = Vector2i(pos.x, pos.y + 1)
+	if below_pos.y >= grid_system.grid_height:
+		return false  # Out of bounds
+
+	var block_below = grid_system.get_block(below_pos)
+	if block_below == null:
+		return false  # No ground below
+
+	return true
 
 ## Get current state as string
 func get_state_name() -> String:
@@ -491,6 +567,15 @@ func use_energy(amount: int) -> bool:
 ## Check if player has enough energy
 func has_energy(amount: int) -> bool:
 	return current_energy >= amount
+
+## Freeze player (for treasure celebration)
+func freeze():
+	is_frozen = true
+	velocity = Vector2.ZERO
+
+## Unfreeze player
+func unfreeze():
+	is_frozen = false
 
 ## ============== Scanning System ==============
 
