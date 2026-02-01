@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Memory_Mining"
-run/main_scene="uid://5lwvecwkdj6l"
+run/main_scene="uid://d16o87ewbt8rn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+AudioManager="*res://scripts/core/audio_manager.gd"
 
 [display]
 

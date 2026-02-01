@@ -255,7 +255,10 @@ func dig_at(position: Vector2i) -> Dictionary:
 		block_destroyed.emit(position, block.type)
 		if energy > 0:
 			energy_gained.emit(energy)
-		
+
+		# Play dig sound effect
+		AudioManager.play_sfx("dig", 0.8)
+
 		# Remove block from grid
 		grid[position.x][position.y] = null
 		block_changed.emit(position, null)
@@ -318,6 +321,8 @@ func scan_area_3x3(center_position: Vector2i) -> int:
 		print("  (No treasure or energy crystals found in this area)")
 	else:
 		print("  Total revealed: %d blocks" % revealed_count)
+		# Play scan sound effect
+		AudioManager.play_sfx("scan", 0.7)
 
 	return revealed_count
 
@@ -498,6 +503,9 @@ func explode_cross(center: Vector2i, range_cells: int) -> Dictionary:
 			block_changed.emit(pos, null)
 
 		result.destroyed_blocks += 1
+
+	# Play bomb explosion sound
+	AudioManager.play_sfx("bomb_explode", 1.0)
 
 	# Emit explosion signal for visual effects
 	bomb_explosion.emit(center, affected_positions)

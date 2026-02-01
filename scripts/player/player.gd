@@ -120,6 +120,9 @@ func _ready():
 		# Connect to energy gained signal
 		grid_system.energy_gained.connect(_on_energy_gained)
 
+		# Connect to treasure revealed signal for audio
+		grid_system.treasure_revealed.connect(_on_treasure_revealed)
+
 func _on_grid_initialized(width: int, height: int):
 	_spawn_at_start_position()
 
@@ -388,6 +391,10 @@ func _die(reason: String):
 	current_state = State.DEAD
 	velocity = Vector2.ZERO
 	death_position = grid_position  # Save death position for respawn
+
+	# Play game over sound
+	AudioManager.play_sfx("game_over", 1.0)
+
 	player_died.emit(reason)
 	print("Player died: %s" % reason)
 
@@ -546,6 +553,14 @@ func _push_player_to_side():
 ## Called when energy is gained from digging
 func _on_energy_gained(amount: int):
 	add_energy(amount)
+	# Play item get sound for energy
+	AudioManager.play_sfx("item_get", 0.6)
+
+## Called when treasure is revealed
+func _on_treasure_revealed(position: Vector2i, treasure_data: TreasureData):
+	# Play treasure sound effect
+	AudioManager.play_sfx("treasure_get", 1.0)
+	print("Treasure collected: %s" % treasure_data.name)
 
 ## Add energy (clamped to max)
 func add_energy(amount: int):
