@@ -42,11 +42,11 @@ enum State {
 
 ## Energy system configuration - easy to adjust
 @export var max_energy: int = 30              # Maximum energy capacity
-@export var scan_energy_cost: int = 10        # Energy cost per scan
+@export var scan_energy_cost: int = 6         # Energy cost per scan
 @export var starting_energy: int = 0          # Starting energy (set higher for testing)
 
 ## Bomb system configuration
-@export var bomb_energy_cost: int = 15        # Energy cost per bomb
+@export var bomb_energy_cost: int = 10        # Energy cost per bomb
 @export var bomb_fuse_time: float = 1.0       # Seconds before bomb explodes
 @export var bomb_range: int = 1               # Explosion range (cells in each direction)
 @export var bomb_damage: int = 1              # Damage to player if caught in explosion
@@ -561,6 +561,12 @@ func _on_treasure_revealed(position: Vector2i, treasure_data: TreasureData):
 	# Play treasure sound effect
 	AudioManager.play_sfx("treasure_get", 1.0)
 	print("Treasure collected: %s" % treasure_data.name)
+
+	# Treasure bonus: restore energy to full
+	var energy_restored = max_energy - current_energy
+	current_energy = max_energy
+	energy_changed.emit(current_energy, max_energy)
+	print("Treasure bonus: Energy fully restored! (+%d)" % energy_restored)
 
 ## Add energy (clamped to max)
 func add_energy(amount: int):

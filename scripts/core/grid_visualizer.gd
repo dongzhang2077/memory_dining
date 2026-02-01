@@ -435,6 +435,12 @@ func _on_block_falling(from_position: Vector2i, to_position: Vector2i, block_dat
 	var fall_distance = to_position.y - from_position.y
 	var fall_duration = 0.1 + (fall_distance * 0.05)  # Faster fall for longer distances
 
+	# Create falling dust particles at the start position
+	_create_falling_dust(from_position)
+
+	# Start shake effect before falling
+	_shake_block_before_fall(node, fall_duration)
+
 	# Animate the fall
 	var tween = create_tween()
 	tween.tween_property(node, "position", to_world, fall_duration).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
@@ -469,6 +475,49 @@ func _on_treasure_broken(position: Vector2i, treasure_data: TreasureData):
 	# Create breaking effect
 	_create_treasure_break_effect(position)
 	print("Treasure broken at (%d, %d): %s" % [position.x, position.y, treasure_data.name])
+
+## Shake block before it falls
+func _shake_block_before_fall(node: Node2D, fall_duration: float):
+	var original_pos = node.position
+	var shake_tween = create_tween()
+	var shake_amount = 1.5
+
+	# Quick shake before falling (3 shakes in 0.1s)
+	shake_tween.tween_property(node, "position", original_pos + Vector2(shake_amount, 0), 0.017)
+	shake_tween.tween_property(node, "position", original_pos + Vector2(-shake_amount, 0), 0.017)
+	shake_tween.tween_property(node, "position", original_pos + Vector2(shake_amount * 0.5, 0), 0.017)
+	shake_tween.tween_property(node, "position", original_pos + Vector2(-shake_amount * 0.5, 0), 0.017)
+	shake_tween.tween_property(node, "position", original_pos, 0.017)
+
+## Create dust particles when block starts falling
+func _create_falling_dust(position: Vector2i):
+	var world_pos = grid_system.grid_to_world(position)
+	# Particles come from bottom edges of the block
+	world_pos.y += cell_size.y
+
+	var particles = CPUParticles2D.new()
+	particles.name = "FallingDust"
+	particles.position = world_pos + Vector2(cell_size.x / 2, 0)
+	particles.emitting = true
+	particles.one_shot = true
+	particles.amount = 4
+	particles.lifetime = 0.25
+	particles.explosiveness = 1.0
+	particles.direction = Vector2(0, 1)  # Fall downward
+	particles.spread = 45
+	particles.initial_velocity_min = 10
+	particles.initial_velocity_max = 25
+	particles.gravity = Vector2(0, 150)
+	particles.scale_amount_min = 1.0
+	particles.scale_amount_max = 2.0
+	particles.color = Color(0.6, 0.5, 0.4, 0.5)  # Light brown dust
+
+	add_child(particles)
+
+	# Auto-remove after particles fade
+	await get_tree().create_timer(0.35).timeout
+	if is_instance_valid(particles):
+		particles.queue_free()
 
 ## Create dust particles when block lands
 func _create_landing_dust(position: Vector2i):
