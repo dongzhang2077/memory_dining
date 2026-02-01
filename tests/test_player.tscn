@@ -15,7 +15,6 @@ script = ExtResource("1_test_player")
 [node name="Player" type="CharacterBody2D" parent="." unique_id=1822539561]
 z_index = 10
 collision_layer = 2
-collision_mask = 1
 script = ExtResource("2_player")
 grid_system_path = NodePath("../GridSystem")
 

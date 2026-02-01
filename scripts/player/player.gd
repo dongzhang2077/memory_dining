@@ -70,8 +70,8 @@ func _ready():
 		else:
 			grid_system.grid_initialized.connect(_on_grid_initialized)
 
-		# Connect to block falling signal for crush damage
-		grid_system.block_falling.connect(_on_block_falling_check_crush)
+		# Connect to block landed signal for crush damage
+		grid_system.block_landed.connect(_on_block_landed_check_crush)
 
 func _on_grid_initialized(width: int, height: int):
 	_spawn_at_start_position()
@@ -311,31 +311,33 @@ func get_state_name() -> String:
 		_:
 			return "Unknown"
 
-## Called when a block starts falling - check if it will crush the player
-## Simple logic: only the first block landing directly on player's head causes damage
-func _on_block_falling_check_crush(from_position: Vector2i, to_position: Vector2i, block_data: BlockData):
+## Called when a block lands - check if it landed on or overlaps with player
+## Simple logic: if block lands at player position or directly above, push player aside and deal damage
+func _on_block_landed_check_crush(landed_position: Vector2i, block_data: BlockData, fall_distance: int):
 	if current_state == State.DEAD:
 		return
 
-	# Check if block is in the same column as player
-	if from_position.x != grid_position.x:
+	# Only check blocks that actually fell
+	if fall_distance <= 0:
+		return
+
+	# Check if block landed in the same column as player
+	if landed_position.x != grid_position.x:
 		return  # Different column, no collision
 
-	# Only damage if block lands exactly one cell above player (on their head)
-	# This means there was empty space above player, and this is the first block falling onto them
-	var player_head_y = grid_position.y - 1  # One cell above player
+	# Check if block landed at player's position or directly above (on their head)
+	# Player position is where they stand, so check if block is at or above player
+	if landed_position.y == grid_position.y or landed_position.y == grid_position.y - 1:
+		print("Player crushed by block landing at (%d, %d), player at (%d, %d)" % [landed_position.x, landed_position.y, grid_position.x, grid_position.y])
 
-	if to_position.y == player_head_y:
-		_take_damage(2, "Crushed by falling block")
-		print("Player crushed by falling block at (%d, %d)" % [to_position.x, to_position.y])
-
-		# Push player to an adjacent empty space
+		# FIRST push player to an adjacent empty space, THEN deal damage
+		# This ensures player is moved even if the damage kills them
 		_push_player_to_side()
+		_take_damage(2, "Crushed by falling block")
 
 ## Push player to an adjacent empty cell when crushed by falling block
 func _push_player_to_side():
-	if current_state == State.DEAD:
-		return
+	# Don't check for DEAD state here - we want to push even if about to die
 
 	# Try to find an empty cell to the left or right
 	var left_pos = Vector2i(grid_position.x - 1, grid_position.y)
