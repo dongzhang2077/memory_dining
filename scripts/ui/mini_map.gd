@@ -11,8 +11,8 @@ extends Control
 @export var player_path: NodePath
 
 ## Size configuration
-@export var map_width: int = 120
-@export var map_height: int = 200
+@export var map_width: int = 72
+@export var map_height: int = 120
 @export var border_width: int = 2
 @export var border_color: Color = Color(0.4, 0.4, 0.4, 0.8)
 @export var background_color: Color = Color(0.1, 0.1, 0.1, 0.7)
@@ -175,6 +175,8 @@ func _copy_grid_visuals():
 	# Connect to grid changes to update minimap
 	if not grid_system.block_changed.is_connected(_on_block_changed):
 		grid_system.block_changed.connect(_on_block_changed)
+	if not grid_system.block_destroyed.is_connected(_on_block_destroyed):
+		grid_system.block_destroyed.connect(_on_block_destroyed)
 
 	# Draw initial grid
 	_redraw_grid(mini_grid)
@@ -241,6 +243,16 @@ func _on_block_changed(pos: Vector2i, block_data: BlockData):
 	# Create new block if exists
 	if block_data != null:
 		_create_mini_block(mini_grid, pos, block_data)
+
+func _on_block_destroyed(pos: Vector2i, block_type: BlockType.Type):
+	# Remove the block from minimap when destroyed
+	var mini_grid = viewport.get_node_or_null("MiniGrid")
+	if mini_grid == null:
+		return
+
+	var old_block = mini_grid.get_node_or_null("Block_%d_%d" % [pos.x, pos.y])
+	if old_block != null:
+		old_block.queue_free()
 
 func _process(delta: float):
 	_update_player_marker()

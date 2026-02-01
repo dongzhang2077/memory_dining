@@ -1,0 +1,92 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://djmca8eymrnq8"]
+
+[ext_resource type="Texture2D" uid="uid://4nepo38ow8d4" path="res://assets/sprites/player/idle.png" id="1_idle"]
+[ext_resource type="Texture2D" uid="uid://bc4tsso3hmjnp" path="res://assets/sprites/player/挖石头1.png" id="2_fsemy"]
+[ext_resource type="Texture2D" uid="uid://c6s5u50i144ku" path="res://assets/sprites/player/走路.png" id="2_walk"]
+[ext_resource type="Texture2D" uid="uid://bihfukyd7w2xs" path="res://assets/sprites/player/挖石头.png" id="3_dig"]
+[ext_resource type="Texture2D" uid="uid://0sqnp7i44rut" path="res://assets/sprites/player/掉落.png" id="4_fall"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8c4xs"]
+atlas = ExtResource("3_dig")
+region = Rect2(0, 0, 400, 600)
+
+[sub_resource type="AtlasTexture" id="fall_1"]
+atlas = ExtResource("4_fall")
+region = Rect2(70, 66, 361, 545)
+
+[sub_resource type="AtlasTexture" id="fall_2"]
+atlas = ExtResource("4_fall")
+region = Rect2(431, 66, 361, 545)
+
+[sub_resource type="AtlasTexture" id="fall_3"]
+atlas = ExtResource("4_fall")
+region = Rect2(792, 66, 361, 545)
+
+[sub_resource type="AtlasTexture" id="fall_4"]
+atlas = ExtResource("4_fall")
+region = Rect2(1153, 66, 361, 545)
+
+[sub_resource type="AtlasTexture" id="walk_1"]
+atlas = ExtResource("2_walk")
+region = Rect2(50, 197, 367, 346)
+
+[sub_resource type="AtlasTexture" id="walk_2"]
+atlas = ExtResource("2_walk")
+region = Rect2(417, 197, 367, 346)
+
+[sub_resource type="AtlasTexture" id="walk_3"]
+atlas = ExtResource("2_walk")
+region = Rect2(784, 197, 367, 346)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8c4xs")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_fsemy")
+}],
+"loop": false,
+"name": &"dig",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("fall_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("fall_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("fall_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("fall_4")
+}],
+"loop": false,
+"name": &"fall",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_idle")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("walk_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("walk_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("walk_3")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]

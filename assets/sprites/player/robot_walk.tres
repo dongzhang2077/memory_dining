@@ -1,0 +1,38 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://bwckyklwcwys2"]
+
+[ext_resource type="Texture2D" uid="uid://c6s5u50i144ku" path="res://assets/sprites/player/走路.png" id="1_f0onp"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0hol4"]
+atlas = ExtResource("1_f0onp")
+region = Rect2(50, 197, 367, 346)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q6r6c"]
+atlas = ExtResource("1_f0onp")
+region = Rect2(417, 197, 367, 346)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kdubu"]
+atlas = ExtResource("1_f0onp")
+region = Rect2(784, 197, 367, 346)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.1,
+"texture": SubResource("AtlasTexture_0hol4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q6r6c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kdubu")
+}, {
+"duration": 1.1,
+"texture": SubResource("AtlasTexture_0hol4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kdubu")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 4.0
+}]

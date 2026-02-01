@@ -1,0 +1,22 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://cjetdyaq1vxhm"]
+
+[ext_resource type="Texture2D" uid="uid://bihfukyd7w2xs" path="res://assets/sprites/player/挖石头.png" id="1_vunet"]
+[ext_resource type="Texture2D" uid="uid://bc4tsso3hmjnp" path="res://assets/sprites/player/挖石头1.png" id="2_r8w0c"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_le4ef"]
+atlas = ExtResource("1_vunet")
+region = Rect2(0, 0, 400, 600)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_le4ef")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_r8w0c")
+}],
+"loop": true,
+"name": &"dig",
+"speed": 5.0
+}]

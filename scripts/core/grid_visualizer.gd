@@ -24,7 +24,7 @@ var block_nodes: Dictionary = {}
 var scan_frame: Node2D = null
 var scan_frame_visible: bool = false
 
-## Block sprite colors for different types
+## Block sprite colors for different types (fallback if no texture)
 var block_colors = {
 	BlockType.Type.SOFT_DIRT: Color(0.6, 0.4, 0.2),      # Brown
 	BlockType.Type.HARD_STONE: Color(0.5, 0.5, 0.55),    # Gray
@@ -33,11 +33,23 @@ var block_colors = {
 	BlockType.Type.ENERGY_CRYSTAL: Color(0.0, 0.8, 1.0)  # Cyan
 }
 
-## Block sprite textures (can be loaded from resources)
+## Block sprite textures
 var block_textures: Dictionary = {}
+
+## Load block textures from assets
+func _load_block_textures():
+	block_textures[BlockType.Type.SOFT_DIRT] = load("res://assets/sprites/blocks/soft_dirt.png")
+	block_textures[BlockType.Type.HARD_STONE] = load("res://assets/sprites/blocks/hard_stone.png")
+	block_textures[BlockType.Type.UNBREAKABLE] = load("res://assets/sprites/blocks/unbreakable.png")
+	block_textures[BlockType.Type.TREASURE] = load("res://assets/sprites/blocks/treasure.png")
+	block_textures[BlockType.Type.ENERGY_CRYSTAL] = load("res://assets/sprites/blocks/energy_crystal.png")
+	print("Block textures loaded")
 
 ## Initialize with grid system
 func _ready():
+	# Load block textures
+	_load_block_textures()
+
 	# Resolve grid system from path
 	if grid_system_path:
 		grid_system = get_node(grid_system_path) as GridSystem
@@ -117,23 +129,29 @@ func _create_block_visual(block_data: BlockData) -> StaticBody2D:
 	collision.position = cell_size / 2
 	block_node.add_child(collision)
 
-	# Create sprite (ColorRect for now, can be replaced with Sprite2D later)
-	var sprite = ColorRect.new()
-	sprite.name = "Sprite"
-	sprite.size = cell_size
-
-	# Determine display color based on block type and scanned status
-	var color: Color
+	# Determine which texture to use based on block type and scanned status
 	var is_hidden_valuable = (block_data.type == BlockType.Type.TREASURE or block_data.type == BlockType.Type.ENERGY_CRYSTAL)
+	var display_type = block_data.type
 
 	if is_hidden_valuable and not block_data.is_scanned:
 		# Hidden treasure/crystal - disguise as soft dirt
-		color = block_colors.get(BlockType.Type.SOFT_DIRT, Color.WHITE)
-	else:
-		# Normal block or scanned valuable - show true color
-		color = block_colors.get(block_data.type, Color.WHITE)
+		display_type = BlockType.Type.SOFT_DIRT
 
-	sprite.color = color
+	# Create sprite with texture
+	var sprite = Sprite2D.new()
+	sprite.name = "Sprite"
+	sprite.centered = false  # Position from top-left corner
+
+	# Try to use texture, fallback to ColorRect if not available
+	var texture = block_textures.get(display_type)
+	if texture != null:
+		sprite.texture = texture
+		# Scale sprite to fit cell size
+		var tex_size = texture.get_size()
+		sprite.scale = cell_size / tex_size
+	else:
+		# Fallback: create a colored placeholder
+		push_warning("No texture for block type: %s" % display_type)
 
 	# Adjust visibility based on block data
 	if not block_data.is_visible:
@@ -156,14 +174,14 @@ func _create_block_visual(block_data: BlockData) -> StaticBody2D:
 	return block_node
 
 ## Add sparkle effect to a sprite (legacy, kept for compatibility)
-func _add_sparkle_effect(sprite: ColorRect):
+func _add_sparkle_effect(sprite: Node2D):
 	var tween = create_tween()
 	tween.set_loops()
 	tween.tween_property(sprite, "modulate:a", 1.0, 0.5)
 	tween.tween_property(sprite, "modulate:a", 0.5, 0.5)
 
 ## Add scanned effect with distinct border for treasure/energy crystal
-func _add_scanned_effect(block_node: Node2D, sprite: ColorRect, block_type: BlockType.Type):
+func _add_scanned_effect(block_node: Node2D, sprite: Node2D, block_type: BlockType.Type):
 	# Set sprite to semi-transparent with slight desaturation
 	sprite.modulate = Color(1.0, 1.0, 1.0, 0.6)
 
@@ -258,10 +276,10 @@ func _on_block_damaged(position: Vector2i, remaining_hits: int):
 	if node != null:
 		var sprite = node.get_node("Sprite")
 		if sprite != null:
-			# Flash effect
+			# Flash effect - flash red then back to white (texture handles color)
 			var tween = create_tween()
 			tween.tween_property(sprite, "modulate", Color.RED, 0.1)
-			tween.tween_property(sprite, "modulate", block_colors.get(grid_system.get_block(position).type, Color.WHITE), 0.1)
+			tween.tween_property(sprite, "modulate", Color.WHITE, 0.1)
 
 ## Called when a treasure is revealed
 func _on_treasure_revealed(position: Vector2i, treasure_data: TreasureData):
@@ -341,13 +359,13 @@ func _on_block_landed(position: Vector2i, block_data: BlockData, fall_distance: 
 	if node == null:
 		return
 
-	# Landing shake effect
-	var sprite = node.get_node_or_null("Sprite")
-	if sprite != null and fall_distance > 0:
+	# Landing shake effect - use the block_node instead of sprite to avoid scale issues
+	if fall_distance > 0:
+		var original_scale = node.scale
 		var tween = create_tween()
-		tween.tween_property(sprite, "scale", Vector2(1.1, 0.9), 0.05)
-		tween.tween_property(sprite, "scale", Vector2(0.95, 1.05), 0.05)
-		tween.tween_property(sprite, "scale", Vector2(1.0, 1.0), 0.05)
+		tween.tween_property(node, "scale", original_scale * Vector2(1.1, 0.9), 0.05)
+		tween.tween_property(node, "scale", original_scale * Vector2(0.95, 1.05), 0.05)
+		tween.tween_property(node, "scale", original_scale, 0.05)
 
 	# Create dust particles on landing
 	if fall_distance > 0:
@@ -359,8 +377,8 @@ func _on_treasure_broken(position: Vector2i, treasure_data: TreasureData):
 	if node != null:
 		var sprite = node.get_node_or_null("Sprite")
 		if sprite != null:
-			# Change color to gray (broken)
-			sprite.color = Color(0.3, 0.3, 0.3)
+			# Change to grayscale using modulate (works with Sprite2D)
+			sprite.modulate = Color(0.3, 0.3, 0.3)
 
 	# Create breaking effect
 	_create_treasure_break_effect(position)

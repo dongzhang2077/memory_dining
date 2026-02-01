@@ -1,0 +1,26 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://dw77pcjf3820n"]
+
+[ext_resource type="Texture2D" uid="uid://dq7rhnpy45mh" path="res://animations/sparkle_outer_0.png" id="1_tqmpm"]
+[ext_resource type="Texture2D" uid="uid://cqnj0g2yx0wrt" path="res://animations/sparkle_outer_1.png" id="2_6pxae"]
+[ext_resource type="Texture2D" uid="uid://dc71o2a0ryus4" path="res://animations/sparkle_outer_2.png" id="3_giwen"]
+[ext_resource type="Texture2D" uid="uid://cgvxctwacdecn" path="res://animations/sparkle_outer_3.png" id="4_gsujx"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_tqmpm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_6pxae")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_giwen")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_gsujx")
+}],
+"loop": true,
+"name": &"sparkle",
+"speed": 8.0
+}]

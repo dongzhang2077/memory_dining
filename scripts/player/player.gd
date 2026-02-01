@@ -64,6 +64,9 @@ var grid_position: Vector2i = Vector2i.ZERO
 var scan_frame_position: Vector2i = Vector2i.ZERO  # Current scan frame center (grid coords)
 var camera: Camera2D = null  # Reference to camera for scan mode following
 
+## Animation
+var animated_sprite: AnimatedSprite2D = null
+
 ## Falling tracking
 var fall_start_y: float = 0.0
 var is_falling: bool = false
@@ -82,6 +85,12 @@ func _ready():
 
 	# Get camera reference
 	camera = get_node_or_null("Camera2D")
+
+	# Get animated sprite reference
+	animated_sprite = get_node_or_null("AnimatedSprite2D")
+	if animated_sprite != null:
+		animated_sprite.play("idle")
+		animated_sprite.animation_finished.connect(_on_animation_finished)
 
 	# Set z_index to render player above blocks
 	z_index = 10
@@ -244,7 +253,7 @@ func _handle_digging(delta: float):
 			if result.success:
 				print("Dug at (%d, %d): energy=%d" % [dig_pos.x, dig_pos.y, result.energy_gained])
 
-			current_state = State.IDLE
+			# Don't immediately set to IDLE - let animation finish via signal
 
 ## Update player state
 func _update_state():
@@ -271,6 +280,48 @@ func _update_state():
 			current_state = State.MOVING
 		else:
 			current_state = State.IDLE
+
+	# Update animation based on state
+	_update_animation()
+
+## Update animation based on current state
+func _update_animation():
+	if animated_sprite == null:
+		return
+
+	match current_state:
+		State.IDLE:
+			if animated_sprite.animation != "idle":
+				animated_sprite.play("idle")
+		State.MOVING:
+			if animated_sprite.animation != "walk":
+				animated_sprite.play("walk")
+			# Flip sprite based on movement direction
+			if input_direction != 0:
+				animated_sprite.flip_h = (input_direction < 0)
+		State.FALLING:
+			if animated_sprite.animation != "fall":
+				animated_sprite.play("fall")
+		State.DIGGING:
+			if animated_sprite.animation != "dig":
+				animated_sprite.play("dig")
+		State.DEAD:
+			# Could add a death animation
+			animated_sprite.stop()
+		State.SCANNING:
+			# Keep current animation during scanning
+			pass
+
+## Called when a non-looping animation finishes
+func _on_animation_finished():
+	if animated_sprite == null:
+		return
+
+	var anim_name = animated_sprite.animation
+	# Return to IDLE after dig animation finishes
+	if anim_name == "dig" and current_state == State.DIGGING:
+		current_state = State.IDLE
+		animated_sprite.play("idle")
 
 ## Check if player can move to position
 func _can_move_to(target_pos: Vector2i) -> bool:

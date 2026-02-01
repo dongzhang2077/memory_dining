@@ -1,0 +1,42 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://cewlvn3k410xp"]
+
+[ext_resource type="Texture2D" uid="uid://0sqnp7i44rut" path="res://assets/sprites/player/掉落.png" id="1_k5bfo"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0hol4"]
+atlas = ExtResource("1_k5bfo")
+region = Rect2(70, 66, 361, 545)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q6r6c"]
+atlas = ExtResource("1_k5bfo")
+region = Rect2(431, 66, 361, 545)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kdubu"]
+atlas = ExtResource("1_k5bfo")
+region = Rect2(792, 66, 361, 545)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d21ai"]
+atlas = ExtResource("1_k5bfo")
+region = Rect2(1153, 66, 361, 545)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0hol4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q6r6c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kdubu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d21ai")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d21ai")
+}],
+"loop": false,
+"name": &"fall",
+"speed": 5.0
+}]
